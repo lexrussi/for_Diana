@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>I love diana</title>
+
+<link rel="icon" href="YOUR_ICON_HERE.png">
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    overflow: hidden;
+}
+canvas {
+    display: block;
+}
+#bottomContainer {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 100;
+}
+#madeForText {
+    color: rgba(255, 100, 150, 0.8);
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(255, 100, 150, 0.5);
+}
+#musicBtn {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 100, 150, 0.8);
+    border: 2px solid rgba(255, 100, 150, 1);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 100, 150, 0.5);
+    color: white;
+}
+#musicBtn:hover {
+    background: rgba(255, 100, 150, 1);
+    box-shadow: 0 0 20px rgba(255, 100, 150, 0.8);
+}
+#musicBtn.playing {
+    background: rgba(100, 200, 255, 0.8);
+    border-color: rgba(100, 200, 255, 1);
+    box-shadow: 0 0 10px rgba(100, 200, 255, 0.5);
+}
+#volumeControl {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 100;
+    flex-direction: column;
+}
+#volumeSlider {
+    width: 8px;
+    height: 120px;
+    border-radius: 4px;
+    background: linear-gradient(to top, rgba(255, 100, 150, 0.3), rgba(255, 100, 150, 0.1));
+    outline: none;
+    -webkit-appearance: slider-vertical;
+    appearance: slider-vertical;
+    writing-mode: bt-lr;
+}
+#volumeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(255, 100, 150, 0.9);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 100, 150, 0.8), 0 0 20px rgba(255, 100, 150, 0.4);
+    border: 2px solid rgba(255, 100, 150, 1);
+    transition: all 0.2s ease;
+}
+#volumeSlider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 15px rgba(255, 100, 150, 1), 0 0 30px rgba(255, 100, 150, 0.6);
+}
+#volumeSlider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(255, 100, 150, 0.9);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 100, 150, 0.8), 0 0 20px rgba(255, 100, 150, 0.4);
+    border: 2px solid rgba(255, 100, 150, 1);
+    transition: all 0.2s ease;
+}
+#volumeSlider::-moz-range-track {
+    background: transparent;
+    border: none;
+}
+#volumeLabel {
+    color: rgba(255, 100, 150, 0.8);
+    font-size: 14px;
+    text-shadow: 0 0 8px rgba(255, 100, 150, 0.5);
+}
+</style>
+</head>
+<body>
+
+<audio id="audio" loop></audio>
+<div id="bottomContainer">
+    <span id="madeForText">made for Diana</span>
+    <button id="musicBtn">▶</button>
+</div>
+<div id="volumeControl">
+    <span id="volumeLabel">🔊</span>
+    <input type="range" id="volumeSlider" min="0" max="100" value="20">
+</div>
+<canvas id="c"></canvas>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
+
+const particles = [];
+const COUNT = 60; 
+
+function heart(t) {
+    return {
+        x: 16 * Math.pow(Math.sin(t), 3),
+        y: 13 * Math.cos(t)
+           - 5 * Math.cos(2*t)
+           - 2 * Math.cos(3*t)
+           - Math.cos(4*t)
+    };
+}
+
+for (let i = 0; i < COUNT; i++) {
+    particles.push({
+        t: (i / COUNT) * Math.PI * 2
+    });
+}
+
+let time = 0;
+
+function draw() {
+    time += 0.002;
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.font = "18px Arial";
+    ctx.textAlign = "center";
+
+    particles.forEach(p => {
+
+        p.t += 0.002;
+
+        const pos = heart(p.t);
+
+        const x = cx + pos.x * 13;
+        const y = cy - pos.y * 13;
+
+        let wave = Math.sin(p.t + time * 1.5);
+
+        wave = (wave + 1) / 2;
+        wave = Math.pow(wave, 6);
+
+        const alpha = 1 - wave;
+
+        const glow = 120 + 80 * alpha;
+
+        ctx.save();
+        ctx.translate(x, y);
+        
+        ctx.shadowColor = "rgba(255, 100, 150, 1)";
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        
+        ctx.fillStyle = `rgba(255,${glow},${glow + 20},${alpha})`;
+        ctx.fillText("love u", 0, 0);
+        ctx.restore();
+    });
+
+    ctx.font = "30px Arial";
+    ctx.shadowColor = "rgba(255, 100, 150, 1)";
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.fillStyle = "rgba(255,100,140,0.9)";
+    ctx.fillText("люблю тебя♡", cx, cy);
+
+    requestAnimationFrame(draw);
+}
+
+draw();
+
+const musicBtn = document.getElementById('musicBtn');
+const audio = document.getElementById('audio');
+const volumeSlider = document.getElementById('volumeSlider');
+
+const musicURL = 'music.mp3';
+
+if (musicURL) {
+    audio.src = musicURL;
+    audio.volume = 0.2;
+}
+
+volumeSlider.addEventListener('input', (e) => {
+    audio.volume = e.target.value / 100;
+});
+
+musicBtn.addEventListener('click', () => {
+    if (!audio.src) {
+        alert('Добавьте ссылку на музыку в коде (переменная musicURL)');
+        return;
+    }
+    
+    if (audio.paused) {
+        if (audio.currentTime === 0) {
+            audio.currentTime = 138;
+        }
+        audio.play().catch(err => alert('Ошибка: ' + err));
+        musicBtn.classList.add('playing');
+        musicBtn.textContent = '⏸';
+    } else {
+        audio.pause();
+        musicBtn.classList.remove('playing');
+        musicBtn.textContent = '▶';
+    }
+});
+
+audio.addEventListener('ended', () => {
+    musicBtn.classList.remove('playing');
+    musicBtn.textContent = '▶';
+});
+</script>
+
+</body>
+</html>
